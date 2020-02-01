@@ -8,28 +8,43 @@
 # By considering the terms in the Fibonacci sequence whose values do not exceed four million, find the sum of the
 # even-valued terms.
 
+
 def fibo(n):
     if n == 0:
         return 0
     elif n == 1:
         return 1
     else:
-        return fibo(n - 1) + fibo(n - 2)
+        return fibo_with_memory(n - 1) + fibo_with_memory(n - 2)
+
+
+def fibo_with_memory(n):
+    global fibo_sequence
+    if n in fibo_sequence:
+        return fibo_sequence.get(n)
+    else:
+        fibo_sequence[n] = fibo(n)
+        return fibo_sequence.get(n)
 
 
 def main():
     print("Problem 2")
-    MAX_VALUE = 4000000
-    f = fibo(0)
+
+    max_value = 40000000000
     cumulative = 0
+    i = 0
+
+    f = fibo_with_memory(i)
     cumulative += f if (f % 2 == 0) else 0
-    i = 1
-    while f <= MAX_VALUE:
-        f = fibo(i)
+    i += 1
+
+    while f <= max_value:
+        f = fibo_with_memory(i)
         cumulative += f if (f % 2 == 0) else 0
         i += 1
 
     print(cumulative)
 
 
+fibo_sequence = {}
 main()
