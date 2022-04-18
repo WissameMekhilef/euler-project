@@ -9,7 +9,13 @@ import (
 // The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99.
 // Find the largest palindrome made from the product of two 3-digit numbers.
 
-func Run() {
+type Ex4 struct{}
+
+func NewEx4() *Ex4 {
+	return &Ex4{}
+}
+
+func (sol *Ex4) Run() {
 	var largestPalindrome int
 	// Naive version
 	// for i := 0; i <= 999; i++ {

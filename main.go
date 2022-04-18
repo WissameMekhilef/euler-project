@@ -11,5 +11,7 @@ func main() {
 	// ex_1.Run()
 	// ex_2.Run()
 	// ex_3.Run()
-	ex_4.Run()
+	var sol Problem = ex_4.NewEx4()
+	sol.Run()
+	// ex_4.Run()
 }
