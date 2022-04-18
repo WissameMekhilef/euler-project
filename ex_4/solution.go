@@ -1,6 +1,9 @@
 package ex_4
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 // A palindromic number reads the same both ways.
 // The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99.
@@ -8,14 +11,48 @@ import "fmt"
 
 func Run() {
 	var largestPalindrome int
-	for i := 0; i <= 999; i++ {
-		for j := 0; j <= 999; j++ {
-			m := i * j
-			if isPalindrome(m) && largestPalindrome < m {
-				largestPalindrome = m
+	// Naive version
+	// for i := 0; i <= 999; i++ {
+	// 	for j := 0; j <= 999; j++ {
+	// 		m := i * j
+	// 		if isPalindrome(m) && largestPalindrome < m {
+	// 			largestPalindrome = m
+	// 		}
+	// 	}
+	// }
+
+	// go routine with channel
+	var wg = sync.WaitGroup{}
+	var lock = sync.RWMutex{}
+	ch := make(chan int, 1000)
+	wg.Add(2)
+	go func(ch <-chan int) {
+		for m := range ch {
+			go func(m int) {
+				lock.RLock()
+				isGreaterPalindrome := isPalindrome(m) && largestPalindrome < m
+				lock.RUnlock()
+				if isGreaterPalindrome {
+					lock.Lock()
+					largestPalindrome = m
+					lock.Unlock()
+				}
+			}(m)
+		}
+		wg.Done()
+	}(ch)
+
+	go func(ch chan<- int) {
+		for i := 0; i <= 999; i++ {
+			for j := 0; j <= 999; j++ {
+				ch <- i * j
 			}
 		}
-	}
+		close(ch)
+		wg.Done()
+	}(ch)
+	wg.Wait()
+
 	fmt.Println(largestPalindrome)
 }
 
