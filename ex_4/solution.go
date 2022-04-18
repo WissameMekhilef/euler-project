@@ -23,25 +23,28 @@ func Run() {
 
 	// go routine with channel
 	var wg = sync.WaitGroup{}
-	var lock = sync.RWMutex{}
-	ch := make(chan int, 1000)
-	wg.Add(2)
+	var lock = sync.Mutex{}
+	ch := make(chan int, 10000)
+	wg.Add(1)
 	go func(ch <-chan int) {
 		for m := range ch {
+			wg.Add(1)
 			go func(m int) {
-				lock.RLock()
-				isGreaterPalindrome := isPalindrome(m) && largestPalindrome < m
-				lock.RUnlock()
-				if isGreaterPalindrome {
+				if isPalindrome(m) {
+					// Lock the ressource to see if the new number needs to replace the current largest
 					lock.Lock()
-					largestPalindrome = m
+					isGreater := m > largestPalindrome
+					if isGreater {
+						largestPalindrome = m
+					}
 					lock.Unlock()
 				}
+				wg.Done()
 			}(m)
 		}
 		wg.Done()
 	}(ch)
-
+	wg.Add(1)
 	go func(ch chan<- int) {
 		for i := 0; i <= 999; i++ {
 			for j := 0; j <= 999; j++ {
